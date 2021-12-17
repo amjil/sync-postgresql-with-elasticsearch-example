@@ -1,21 +1,10 @@
 START TRANSACTION;
 
-CREATE TABLE users(
+CREATE TABLE customers(
   id    SERIAL PRIMARY KEY,
+  first_name varchar(100),
+  last_name varchar(100),
   email VARCHAR(40) NOT NULL UNIQUE
-);
-
-CREATE TABLE posts(
-  id      SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  title   VARCHAR(100) NOT NULL UNIQUE
-);
-
-CREATE TABLE comments(
-  id      SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  post_id INTEGER NOT NULL REFERENCES posts(id),
-  body    VARCHAR(500) NOT NULL
 );
 
 COMMIT;

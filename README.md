@@ -53,20 +53,20 @@ Check database's content
 
 ```shell
 # Check contents of the PostgreSQL database:
-docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DATABASE -c "SELECT * FROM users"'
+docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DATABASE -c "SELECT * FROM customers"'
 
 # Check contents of the Elasticsearch database:
-curl http://localhost:9200/users/_search?pretty
+curl http://localhost:9200/customers/_search?pretty
 ```
 
-Create user
+Create customer
 
 ```shell
 docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DATABASE'
-test_db=# INSERT INTO users (email) VALUES ('apple@gmail.com');
+test_db=# insert into customers values(default, 'John', 'Doe', 'john.doe@example.com');
 
 # Check contents of the Elasticsearch database:
-curl http://localhost:9200/users/_search?q=id:6
+curl http://localhost:9200/customers/_search?q=id:4
 ```
 
 ```json
@@ -77,13 +77,15 @@ curl http://localhost:9200/users/_search?q=id:6
     "max_score": 1.0,
     "hits": [
       {
-        "_index": "users",
-        "_type": "_doc",
-        "_id": "6",
-        "_score": 1.0,
+        "_index": "customers",
+        "_type": "customers",
+        "_id": "4",
+        "_score": 1,
         "_source": {
-          "id": 6,
-          "email": "apple@gmail.com"
+          "id": 4,
+          "first_name": "John",
+          "last_name": "Doe",
+          "email": "john.doe@example.com"
         }
       }
     ]
@@ -91,13 +93,13 @@ curl http://localhost:9200/users/_search?q=id:6
 }
 ```
 
-Update user
+Update customer
 
 ```shell
-test_db=# UPDATE users SET email = 'tesla@gmail.com' WHERE id = 6;
+test_db=# UPDATE customers SET email = 'tesla@gmail.com' WHERE id = 4;
 
 # Check contents of the Elasticsearch database:
-curl http://localhost:9200/users/_search?q=id:6
+curl http://localhost:9200/users/_search?q=id:4
 ```
 
 ```json
@@ -108,12 +110,14 @@ curl http://localhost:9200/users/_search?q=id:6
     "max_score": 1.0,
     "hits": [
       {
-        "_index": "users",
-        "_type": "_doc",
-        "_id": "6",
-        "_score": 1.0,
+        "_index": "customers",
+        "_type": "customers",
+        "_id": "4",
+        "_score": 1,
         "_source": {
-          "id": 6,
+          "id": 4,
+          "first_name": "John",
+          "last_name": "Doe",
           "email": "tesla@gmail.com"
         }
       }
@@ -125,10 +129,10 @@ curl http://localhost:9200/users/_search?q=id:6
 Delete user
 
 ```shell
-test_db=# DELETE FROM users WHERE id = 6;
+test_db=# DELETE FROM customers WHERE id = 4;
 
 # Check contents of the Elasticsearch database:
-curl http://localhost:9200/users/_search?q=id:6
+curl http://localhost:9200/users/_search?q=id:4
 ```
 
 ```json

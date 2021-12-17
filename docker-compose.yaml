@@ -1,7 +1,7 @@
 version: "3"
 services:
   zookeeper:
-    image: debezium/zookeeper:1.0
+    image: debezium/zookeeper:1.7
     restart: always
     ports:
       - 2181:2181
@@ -9,7 +9,7 @@ services:
       - 3888:3888
 
   kafka:
-    image: debezium/kafka:1.0
+    image: debezium/kafka:1.7
     restart: always
     ports:
       - 9092:9092
@@ -19,7 +19,7 @@ services:
       - ZOOKEEPER_CONNECT=zookeeper:2181
 
   postgres:
-    build: ./postgres
+    image: debezium/postgres:11
     restart: always
     ports:
       - 5432:5432
@@ -29,7 +29,7 @@ services:
       - POSTGRES_DATABASE=test_db
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.1
     restart: always
     ports:
       - 9200:9200
@@ -40,7 +40,9 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   connect:
-    build: ./debezium-jdbc-es
+    image: debezium/connect-jdbc-es:1.7
+    build:
+      context: debezium-jdbc-es
     restart: always
     ports:
       - 8083:8083
