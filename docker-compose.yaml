@@ -1,7 +1,7 @@
 version: "3"
 services:
   zookeeper:
-    image: debezium/zookeeper:1.7
+    image: debezium/zookeeper:1.9
     restart: always
     ports:
       - 2181:2181
@@ -9,7 +9,7 @@ services:
       - 3888:3888
 
   kafka:
-    image: debezium/kafka:1.7
+    image: debezium/kafka:1.9
     restart: always
     ports:
       - 9092:9092
@@ -40,9 +40,9 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   connect:
-    image: debezium/connect-jdbc-es:1.7
+    # image: debezium/connect-jdbc-es:1.7
     build:
-      context: debezium-jdbc-es
+     context: ./debezium-jdbc-es
     restart: always
     ports:
       - 8083:8083
