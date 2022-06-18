@@ -1,25 +1,31 @@
-FROM debezium/connect-base:1.9
+ARG DEBEZIUM_VERSION=1.9
+# FROM quay.io/debezium/connect:${DEBEZIUM_VERSION}
+FROM debezium/connect:${DEBEZIUM_VERSION}
+ENV KAFKA_CONNECT_JDBC_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-jdbc \
+    KAFKA_CONNECT_ES_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-elasticsearch
 
-LABEL maintainer="Debezium Community"
+ARG POSTGRES_VERSION=42.2.8
+ARG KAFKA_JDBC_VERSION=5.3.2
+ARG KAFKA_ELASTICSEARCH_VERSION=5.3.2
 
-ENV DEBEZIUM_VERSION="1.9.3.Final" \
-    MAVEN_REPO_CENTRAL="" \
-    MAVEN_REPOS_ADDITIONAL="" \
-    MAVEN_DEP_DESTINATION=$KAFKA_CONNECT_PLUGINS_DIR \
-    MONGODB_MD5=d698c30a1c9ccde3b85b753869f8e2ff \
-    MYSQL_MD5=5734dc2be40951b169f7fb2afcd1cbf5 \
-    POSTGRES_MD5=bcd0acb25633d23af4ac5e0f3aed6c1f \
-    SQLSERVER_MD5=4d5c7c3b410a0c5b2f69474c73fda442 \
-    ORACLE_MD5=9091d8d6875d166cfcdec2887af39e76 \
-    DB2_MD5=7a4a8a5b938bf523d9c8fe30ac8ed7d9 \
-    VITESS_MD5=ba4b0e27759c9f43a7d619daa315c6b6 \
-    SCRIPTING_MD5=514fb8e29d31d1f060b6bd9de1d9a0e4
+# Deploy PostgreSQL JDBC Driver
+RUN cd /kafka/libs && curl -sO https://jdbc.postgresql.org/download/postgresql-$POSTGRES_VERSION.jar
 
-RUN docker-maven-download debezium mongodb "$DEBEZIUM_VERSION" "$MONGODB_MD5" && \
-    docker-maven-download debezium mysql "$DEBEZIUM_VERSION" "$MYSQL_MD5" && \
-    docker-maven-download debezium postgres "$DEBEZIUM_VERSION" "$POSTGRES_MD5" && \
-    docker-maven-download debezium sqlserver "$DEBEZIUM_VERSION" "$SQLSERVER_MD5" && \
-    docker-maven-download debezium oracle "$DEBEZIUM_VERSION" "$ORACLE_MD5" && \
-    docker-maven-download debezium-additional db2 db2 "$DEBEZIUM_VERSION" "$DB2_MD5" && \
-    docker-maven-download debezium-additional vitess vitess "$DEBEZIUM_VERSION" "$VITESS_MD5" && \
-    docker-maven-download debezium-optional scripting "$DEBEZIUM_VERSION" "$SCRIPTING_MD5"
+# Deploy Kafka Connect JDBC
+RUN mkdir $KAFKA_CONNECT_JDBC_DIR && cd $KAFKA_CONNECT_JDBC_DIR &&\
+	curl -sO https://packages.confluent.io/maven/io/confluent/kafka-connect-jdbc/$KAFKA_JDBC_VERSION/kafka-connect-jdbc-$KAFKA_JDBC_VERSION.jar
+
+# Deploy Confluent Elasticsearch sink connector
+RUN mkdir $KAFKA_CONNECT_ES_DIR && cd $KAFKA_CONNECT_ES_DIR &&\
+        curl -sO https://packages.confluent.io/maven/io/confluent/kafka-connect-elasticsearch/$KAFKA_ELASTICSEARCH_VERSION/kafka-connect-elasticsearch-$KAFKA_ELASTICSEARCH_VERSION.jar && \
+        curl -sO https://repo1.maven.org/maven2/io/searchbox/jest/6.3.1/jest-6.3.1.jar && \
+        curl -sO https://repo1.maven.org/maven2/org/apache/httpcomponents/httpcore-nio/4.4.4/httpcore-nio-4.4.4.jar && \
+        curl -sO https://repo1.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.1/httpclient-4.5.1.jar && \
+        curl -sO https://repo1.maven.org/maven2/org/apache/httpcomponents/httpasyncclient/4.1.1/httpasyncclient-4.1.1.jar && \
+        curl -sO https://repo1.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.4/httpcore-4.4.4.jar && \
+        curl -sO https://repo1.maven.org/maven2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar && \
+        curl -sO https://repo1.maven.org/maven2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar && \
+        curl -sO https://repo1.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.4/httpcore-4.4.4.jar && \
+        curl -sO https://repo1.maven.org/maven2/io/searchbox/jest-common/6.3.1/jest-common-6.3.1.jar && \
+        curl -sO https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar && \
+        curl -sO https://repo1.maven.org/maven2/com/google/guava/guava/31.0.1-jre/guava-31.0.1-jre.jar
