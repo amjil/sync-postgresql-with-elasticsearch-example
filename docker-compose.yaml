@@ -40,9 +40,11 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   connect:
-    # image: debezium/connect-jdbc-es:1.7
+    image: debezium/connect-jdbc-es:1.9
     build:
      context: ./debezium-jdbc-es
+     args:
+        DEBEZIUM_VERSION: 1.9
     restart: always
     ports:
       - 8083:8083
@@ -56,3 +58,4 @@ services:
       - GROUP_ID=1
       - CONFIG_STORAGE_TOPIC=my_connect_configs
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_source_connect_statuses

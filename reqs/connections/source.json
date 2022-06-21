@@ -7,15 +7,10 @@
     "database.port": "5432",
     "database.user": "postgres",
     "database.password": "postgres",
-    "database.server.id": "184054",
     "database.dbname": "test_db",
     "database.server.name": "dbserver1",
-    "database.whitelist": "test_db",
-    "database.history.kafka.bootstrap.servers": "kafka:9092",
-    "database.history.kafka.topic": "schema-changes.test_db",
-    "transforms": "route",
-    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
-    "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
-    "transforms.route.replacement": "$3"
+    "transforms": "unwrap",
+    "transforms.unwrap.type":"io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstones":"false"
   }
 }
