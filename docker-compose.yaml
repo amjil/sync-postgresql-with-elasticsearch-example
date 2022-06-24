@@ -13,6 +13,8 @@ services:
     restart: always
     ports:
       - 9092:9092
+    # volumes:
+    #   - ./kafka/data:/kafka/data
     links:
       - zookeeper
     environment:
@@ -23,6 +25,8 @@ services:
     restart: always
     ports:
       - 5432:5432
+    # volumes:
+    #   - postgresql-volume:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -33,6 +37,8 @@ services:
     restart: always
     ports:
       - 9200:9200
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data
     environment:
       - http.host=0.0.0.0
       - transport.host=127.0.0.1
@@ -51,7 +57,7 @@ services:
       - 5005:5005
     links:
       - kafka
-      - postgres
+      # - postgres
       - elasticsearch
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
@@ -59,3 +65,41 @@ services:
       - CONFIG_STORAGE_TOPIC=my_connect_configs
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.0.4
+    container_name: schema-registry
+    restart: unless-stopped
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    healthcheck:
+      test: "curl -f http://localhost:8081 || exit 1"
+
+  ksqldb-server:
+    image: confluentinc/cp-ksqldb-server:7.0.4
+    container_name: ksqldb-server
+    restart: unless-stopped
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      KSQL_BOOTSTRAP_SERVERS: kafka:9092
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KSQL_KSQL_SERVICE_ID: ksqldb-server-1
+      KSQL_AUTO_OFFSET_RESET: "earliest"
+    healthcheck:
+      test: "curl -f http://localhost:8088 || exit 1"
+# volumes:
+#   esdata:
+#     driver: local
+#   kafka-data:
+#     driver: local
+#   postgresql-volume:
+#     external: true
