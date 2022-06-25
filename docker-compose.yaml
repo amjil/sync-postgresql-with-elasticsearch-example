@@ -59,12 +59,19 @@ services:
       - kafka
       # - postgres
       - elasticsearch
+      - schema-registry
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=1
       - CONFIG_STORAGE_TOPIC=my_connect_configs
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+      - CONNECT_KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - CONNECT_VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.0.4
