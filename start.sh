@@ -59,15 +59,38 @@ CREATE STREAM question_src
 CREATE STREAM answer_src
   WITH (KAFKA_TOPIC='dbserver1.public.answer', VALUE_FORMAT='AVRO');
 
-CREATE TABLE question_table (id integer primary key, question_title varchar, question_content varchar, created_at bigint, updated_at bigint, version integer)
-  WITH (KAFKA_TOPIC='question_src', VALUE_FORMAT='AVRO', partitions=1);
+CREATE TABLE question_src_table
+  WITH (partitions=1)
+  as select id , LATEST_BY_OFFSET(question_content) as question_content,
+      LATEST_BY_OFFSET(question_detail) as question_detail,
+      LATEST_BY_OFFSET(created_at) as created_at,
+      LATEST_BY_OFFSET(updated_at) as updated_at,
+      LATEST_BY_OFFSET(version) as version
+    from question_src
+    group by id;
+
+select * from question_src_table where id = 1;
+
 DESCRIBE question_table;
 
-CREATE STREAM question_answer as
-  select a.id, a.question_title, a.question_content, a.created_at as question_created_at, a.updated_at as question_updated_at, a.version as question_version,
-    b.id as answer_id, b.content as content, b.created_at as answer_created_at, b.updated_at answer_updated_at, b.version as answer_version
+CREATE STREAM question_answer with (partitions=1) as
+  select a.id as id,
+        a.question_content as question_content,
+        a.question_detail as question_detail,
+        a.created_at as question_created_at,
+        a.updated_at as question_updated_at,
+        a.version as question_version,
+        b.id as answer_id,
+        b.content as answer_content,
+        b.created_at as answer_created_at,
+        b.updated_at answer_updated_at,
+        b.version as answer_version
   from answer_src b
-    left join question_table a ON a.id = b.question_id;
+    left join question_src_table a ON a.id = b.question_id;
+
+drop stream question_answer;
+
+select * from question_answer emit changes;
 # elasticsearch curl
 # delete index
 curl --location --request DELETE 'localhost:9200/dbserver1.public.question'
