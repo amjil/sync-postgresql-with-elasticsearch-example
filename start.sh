@@ -76,23 +76,25 @@ select * from "question_src_table" where id = 1;
 DESCRIBE question_table;
 
 CREATE STREAM "question_answer" with (partitions=1) as
-  select a.id as id,
-        a.question_content as question_content,
-        a.question_detail as question_detail,
-        a.created_at as question_created_at,
-        a.updated_at as question_updated_at,
-        a.version as question_version,
-        b.id as answer_id,
-        b.content as answer_content,
-        b.created_at as answer_created_at,
-        b.updated_at answer_updated_at,
-        b.version as answer_version
+  select a.id as "id",
+        a.question_content as "question_content",
+        a.question_detail as "question_detail",
+        a.created_at as "question_created_at",
+        a.updated_at as "question_updated_at",
+        a.version as "question_version",
+        b.id as "answer_id",
+        b.content as "answer_content",
+        b.created_at as "answer_created_at",
+        b.updated_at as "answer_updated_at",
+        b.version as "answer_version"
   from "answer_src" b
     left join "question_src_table" a ON a.id = b.question_id;
 
 drop stream "question_answer";
 
 select * from "question_answer" emit changes;
+
+print "question_answer" from beginning;
 # elasticsearch curl
 # delete index
 curl --location --request DELETE 'localhost:9200/dbserver1.public.question'
