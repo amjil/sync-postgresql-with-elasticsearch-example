@@ -10,7 +10,7 @@
         "key.ignore": "false",
         "schema.ignore": "true",
 
-        "value.converter.schema.registry.url": "http://schema-registry:8081",
+        "value.converter.schema.registry.url": "http://schema-registry:8082",
         "value.converter": "io.confluent.connect.avro.AvroConverter",
         "key.converter": "org.apache.kafka.connect.converters.IntegerConverter"
 

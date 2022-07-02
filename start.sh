@@ -11,14 +11,18 @@ curl -i -X DELETE -H "Accept:application/json" -H  "Content-Type:application/jso
 
 curl -i -X DELETE -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/elastic-sink
 
-curl -X GET http://localhost:8081/subjects
+curl -X GET http://localhost:8082/subjects
 
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @reqs/connections/es-qa.json
 curl -i -X DELETE -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/elastic-sink-qa
 curl -i -X GET -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/elastic-sink-qa/status
+curl -i -X GET -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/test_db-connector
 curl -i -X GET http://localhost:9200/_mapping
 
-curl -i -X DELETE http://localhost:8081/subjects/dbserver1.public.answer-value/versions/1
+curl -i -X DELETE http://localhost:8082/subjects/dbserver1.public.answer-value/versions/1
+
+curl -i -X DELETE http://localhost:9200/question_answer
+
 # psql command
 create database test_db;
 \c test_db

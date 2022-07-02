@@ -67,9 +67,9 @@ services:
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_source_connect_statuses
       - CONNECT_KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
-      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8082
       - CONNECT_VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
-      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8082
       - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
       - CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
 
@@ -80,13 +80,13 @@ services:
     depends_on:
       - kafka
     ports:
-      - "8081:8081"
+      - "8082:8082"
     environment:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8082
     healthcheck:
-      test: "curl -f http://localhost:8081 || exit 1"
+      test: "curl -f http://localhost:8082 || exit 1"
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:7.0.4
@@ -98,7 +98,7 @@ services:
     environment:
       KSQL_BOOTSTRAP_SERVERS: kafka:9092
       KSQL_LISTENERS: http://0.0.0.0:8088
-      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8082
       KSQL_KSQL_SERVICE_ID: ksqldb-server-1
       KSQL_AUTO_OFFSET_RESET: "earliest"
     healthcheck:
